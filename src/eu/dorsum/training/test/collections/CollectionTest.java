@@ -18,11 +18,13 @@ import org.junit.Test;
 
 import eu.dorsum.training.collections.core.Employee;
 import eu.dorsum.training.collections.core.EmployeeUtil;
+import eu.dorsum.training.enumerators.Book;
 
 public class CollectionTest {
 
 	private List<Employee> employeeList;
 	private Map<Integer, List<String>> resultMap;
+	private Map<Book, List<String>> resultMapWithEnum;
 	private Set<Integer> resultSet;
 	private Set<String> resultNames;
 	private double avgSalary;
@@ -31,10 +33,10 @@ public class CollectionTest {
 	public void initResults() {
 		//data for all the lessons
 		employeeList = new ArrayList<>();
-		employeeList.add(new Employee("Denis", 25, 50000.0));
-		employeeList.add(new Employee("Abraham", 24, 100.0));
-		employeeList.add(new Employee("Mike", 24, 120.0));
-		employeeList.add(new Employee("George", 45, 300.0));
+		employeeList.add(new Employee("Denis", 25, 50000.0, Book.B1984));
+		employeeList.add(new Employee("Abraham", 24, 100.0, Book.B1984));
+		employeeList.add(new Employee("Mike", 24, 120.0, Book.THE_INSTITUTE));
+		employeeList.add(new Employee("George", 45, 300.0, Book.HERE_TO_STAY));
     	
     	//result for task-3
     	resultSet = new HashSet<>(Arrays.asList(24,25,45));
@@ -59,6 +61,15 @@ public class CollectionTest {
     	resultMap.put(24, age24);
     	resultMap.put(25, age25);
     	resultMap.put(45, age45);	
+    	
+		//result for task-8
+		resultMapWithEnum = new HashMap<>();
+    	List<String> b1984 = Arrays.asList("Denis", "Abraham");
+    	List<String> theInstitute = Arrays.asList("Mike");
+    	List<String> hereToStay = Arrays.asList("George");
+    	resultMapWithEnum.put(Book.B1984, b1984);
+    	resultMapWithEnum.put(Book.THE_INSTITUTE, theInstitute);
+    	resultMapWithEnum.put(Book.HERE_TO_STAY, hereToStay);
 	}
 
 	/**
@@ -119,19 +130,34 @@ public class CollectionTest {
     }
     
     /**
-     * 
-     * return names group by enum values
-     * Create a Book enum class first, and create a new variable in the Employee class as 'favBook'
+     * Transform the list to a map like this
+     * key - book
+     * value - all the names of the people who like the same book
+     * for example:
+     * 		the_institute - Mike
+     * 		here_to_stay - George
+     * 	    b1984 - Denis, Abraham
      */
-    public void enumTest() {
-    	
+    @Test
+    public void enumExample() {
+    	assertTrue(areEqualWithListValueForEnum(EmployeeUtil.getEmployeesAsMap2(employeeList), resultMapWithEnum));      
     }
-    
+
     private boolean areEqualWithListValue(Map<Integer, List<String>> first, Map<Integer, List<String>> second) {
         if (first.size() != second.size()) {
             return false;
         }
 
+        return first.entrySet().stream()
+          .allMatch(e -> e.getValue().containsAll(second.get(e.getKey())) &&
+        		  second.get(e.getKey()).containsAll(e.getValue()));
+    }
+    
+    private boolean areEqualWithListValueForEnum(Map<Book, List<String>> first, Map<Book, List<String>> second) {
+        if (first.size() != second.size()) {
+            return false;
+        }
+        //second.get(e.getKey()
         return first.entrySet().stream()
           .allMatch(e -> e.getValue().containsAll(second.get(e.getKey())) &&
         		  second.get(e.getKey()).containsAll(e.getValue()));
